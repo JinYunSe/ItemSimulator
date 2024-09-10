@@ -1,8 +1,11 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import expressSession from "express-session";
+import expressMySQLSession from "express-mysql-session";
+import UsersRouter from "../routers/user.router.js";
+import LogMiddleware from "../middlewares/log.middleware.js";
+import ErrorHandingMiddleware from "../middlewares/errorhanding.middleware.js";
 import dotenv from "dotenv";
-
-import userRouter from "../Router/userRouter";
 
 dotenv.config();
 
@@ -22,10 +25,24 @@ const sessionStore = new MySQLStore({
   createDatabaseTable: true,
 });
 
+app.use(LogMiddleware);
 app.use(express.json());
 app.use(cookieParser());
-app.use("/api", [userRouter]);
+app.use(
+  expressSession({
+    secret: process.env.SESSION_SECRET_KEY,
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24,
+    },
+  })
+);
 
+app.use("/api", [UsersRouter]);
+
+app.use(ErrorHandingMiddleware);
 app.listen(PORT, () => {
   console.log(PORT + "로 서버가 열렸습니다");
 });
