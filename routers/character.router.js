@@ -90,7 +90,7 @@ CharacterRouter.get(
           userId: true,
         },
       });
-      if (character.userId !== userId) delete character.money;
+      if (character.userId !== userId) delete character.money; // 본인 케릭 아니면 삭제
       delete character.userId; // 개인정보? 생각해서 그냥 삭제 했습니다.
       return res.status(200).json({ data: character });
     } catch (error) {
@@ -112,11 +112,10 @@ CharacterRouter.delete(
       const isExist = await prisma.Characters.findFirst({
         where: {
           characterId: +characterId,
-          userId,
         },
       });
 
-      if (!isExist)
+      if (!isExist || isExist.userId !== userId)
         return res
           .status(404)
           .json({ message: "캐릭터 조회에 실패하였습니다." });

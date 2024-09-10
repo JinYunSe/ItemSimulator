@@ -19,6 +19,7 @@ const createSingUpSchema = joi.object({
   name: joi.string().required(),
 });
 
+// 회원가입 API
 UsersRouter.post("/sign-up", async (req, res, next) => {
   try {
     const validation = await createSingUpSchema.validateAsync(req.body);
@@ -64,6 +65,7 @@ UsersRouter.post("/sign-up", async (req, res, next) => {
   }
 });
 
+// 로그인 API
 UsersRouter.post("/sign-in", async (req, res, next) => {
   const { userId, password } = req.body;
 
@@ -81,6 +83,18 @@ UsersRouter.post("/sign-in", async (req, res, next) => {
   const token = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY);
   res.cookie("authorization", `Bearer ${token}`);
   return res.status(200).json({ message: "로그인 성공" });
+});
+
+// 회원 모두 조회 API
+UsersRouter.get("/singAll", async (req, res, next) => {
+  const userList = await prisma.Users.findMany({
+    select: {
+      userId: true,
+      password: true,
+      name: true,
+      createdAt: true,
+    },
+  });
 });
 
 export default UsersRouter;
