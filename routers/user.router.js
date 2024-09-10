@@ -23,12 +23,12 @@ UsersRouter.post("/sign-up", async (req, res, next) => {
   try {
     const validation = await createSingUpSchema.validateAsync(req.body);
     const { userId, password, passwordCheck, name } = validation;
-    const isExistUser = await prisma.Users.findFirst({
+    const isExist = await prisma.Users.findFirst({
       where: {
         userId,
       },
     });
-    if (isExistUser)
+    if (isExist)
       return res.status(409).json({ message: "이미 존재하는 이메일 입니다." });
     if (password !== passwordCheck)
       return res.status(400).json({ massage: "비밀번호가 일치하지 않습니다." });
