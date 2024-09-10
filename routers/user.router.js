@@ -1,8 +1,8 @@
 import express from "express";
 import prisma from "../src/utils/prisma/index.js";
-//import authMiddleware from "../middlewares/auth.middleware.js";
 import bcrypt from "bcrypt";
 import { Prisma } from "@prisma/client";
+import jwt from "jsonwebtoken";
 import joi from "joi";
 
 const UsersRouter = express.Router();
@@ -65,7 +65,22 @@ UsersRouter.post("/sign-up", async (req, res, next) => {
 });
 
 UsersRouter.post("/sign-in", async (req, res, next) => {
-  const { email, password } = req.body;
+  const { userId, password } = req.body;
+
+  const user = await prisma.Users.findFirst({
+    where: {
+      userId,
+    },
+  });
+
+  if (!user)
+    return res.status(404).json({ message: "아이디가 존재하지 않습니다." });
+  else if (!(await bcrypt.compare(password, user.password)))
+    return res.status(404).json({ message: "비밀번호를 일치하지 않습니다." });
+
+  const token = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY);
+  res.cookie("authorization", `Bearer ${token}`);
+  return res.status(200).json({ message: "로그인 성공" });
 });
 
 export default UsersRouter;

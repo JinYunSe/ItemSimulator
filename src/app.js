@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import expressSession from "express-session";
 import expressMySQLSession from "express-mysql-session";
 import UsersRouter from "../routers/user.router.js";
+import CharacterRouter from "../routers/character.router.js";
 import LogMiddleware from "../middlewares/log.middleware.js";
 import ErrorHandingMiddleware from "../middlewares/errorhanding.middleware.js";
 import dotenv from "dotenv";
@@ -28,19 +29,8 @@ const sessionStore = new MySQLStore({
 app.use(LogMiddleware);
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  expressSession({
-    secret: process.env.SESSION_SECRET_KEY,
-    resave: false,
-    saveUninitialized: false,
-    store: sessionStore,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24,
-    },
-  })
-);
 
-app.use("/api", [UsersRouter]);
+app.use("/api", [UsersRouter, CharacterRouter]);
 
 app.use(ErrorHandingMiddleware);
 app.listen(PORT, () => {
