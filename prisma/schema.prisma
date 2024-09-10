@@ -21,7 +21,6 @@ model Users {
 
   userInfos UserInfos? //UserInfos 테이블 1:1 관계
   characters     Characters[] //Characters 테이블 1:N 관계
-  itemInventory  ItemInventory[]
   @@map("Users")
 }
 
@@ -48,23 +47,16 @@ model Characters{
 
   // Users 테이블에서 외래키 가져오기
   user Users @relation(fields: [userId], references: [userId], onDelete : Cascade)
-  item ItemInventory[] //Items 테이블 1:N 관계
   @@map("Characters")
 }
 
-model ItemInventory{
-    ItemId      Int @id @default(autoincrement()) @map("ItemId")
-    characterId Int                               @map("characterId")
-    userId      String                            @map("userId")
-    ItemName    String                            @map("ItemName")
-    addhealth   Int                               @map("addhealth")
-    addpower    Int                               @map("addpower")
+model Items{
+    itemId      Int @id @default(autoincrement()) @map("ItemId")
+    itemCode    Int @unique                       @map("ItemCode")
+    itemName    String                            @map("ItemName")
+    addHealth   Int                               @map("addHealth")
+    addPower    Int                               @map("addPower")
     price       Int                               @map("price")
 
-    // Characters 테이블에서 외래키 가져오기
-    character Characters @relation(fields: [characterId], references: [characterId], onDelete : Cascade)
-    // Users 테이블에서 외래키 가져오기
-    user Users @relation(fields : [userId], references : [userId], onDelete : Cascade)
-
-    @@map("ItemInventory")
+    @@map("Items")
 }
