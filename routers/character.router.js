@@ -1,7 +1,7 @@
-import express from 'express';
-import prisma from '../src/utils/prisma/index.js';
-import authMiddleware from '../middlewares/auth.middleware.js';
-import joi from 'joi';
+import express from "express";
+import prisma from "../src/utils/prisma/index.js";
+import authMiddleware from "../middlewares/auth.middleware.js";
+import joi from "joi";
 
 const CharacterRouter = express.Router();
 
@@ -19,7 +19,7 @@ const checkCharacterId = joi.object({
 });
 
 // 케릭터 생성 API
-CharacterRouter.post('/characters', authMiddleware, async (req, res, next) => {
+CharacterRouter.post("/characters", authMiddleware, async (req, res, next) => {
   try {
     const { userId } = req.user;
     const validation = await checkCharacterNickName.validateAsync(req.body);
@@ -31,7 +31,7 @@ CharacterRouter.post('/characters', authMiddleware, async (req, res, next) => {
       },
     });
     if (isExist)
-      return res.status(409).json({ message: '이미 존재하는 닉네임 입니다.' });
+      return res.status(409).json({ message: "이미 존재하는 닉네임 입니다." });
 
     const character = await prisma.Characters.create({
       data: {
@@ -53,7 +53,7 @@ CharacterRouter.post('/characters', authMiddleware, async (req, res, next) => {
 // 케릭터 전체 조회 API
 // DB 확인을 위해 구현
 CharacterRouter.get(
-  '/charactersALL',
+  "/charactersALL",
   authMiddleware,
   async (req, res, next) => {
     const characterList = await prisma.Characters.findMany({
@@ -66,7 +66,7 @@ CharacterRouter.get(
         money: true,
       },
       orderBy: {
-        characterId: 'asc',
+        characterId: "asc",
       },
     });
     console.log(characterList);
@@ -76,7 +76,7 @@ CharacterRouter.get(
 
 //특정 케릭터 조회 API
 CharacterRouter.get(
-  '/characters/:characterId',
+  "/characters/:characterId",
   authMiddleware,
   async (req, res, next) => {
     try {
@@ -96,6 +96,12 @@ CharacterRouter.get(
           userId: true,
         },
       });
+
+      if (!character)
+        return res
+          .status(404)
+          .json({ message: "해당 케릭터가 존재하지 않습니다." });
+
       if (character.userId !== userId) delete character.money; // 본인 케릭 아니면 삭제
       delete character.userId; // 개인정보? 생각해서 그냥 삭제 했습니다.
       return res.status(200).json({ data: character });
@@ -107,7 +113,7 @@ CharacterRouter.get(
 
 // 케릭터 삭제 API
 CharacterRouter.delete(
-  '/characters/:characterId',
+  "/characters/:characterId",
   authMiddleware,
   async (req, res, next) => {
     try {
@@ -121,10 +127,14 @@ CharacterRouter.delete(
         },
       });
 
-      if (!isExist || isExist.userId !== userId)
+      if (!isExist)
         return res
           .status(404)
-          .json({ message: '캐릭터 조회에 실패하였습니다.' });
+          .json({ message: "해당 캐릭터가 존재하지 않습니다." });
+      if (isExist.userId !== userId)
+        return res
+          .status(403)
+          .json({ message: "해당 캐릭터를 삭제할 권한이 없습니다." });
 
       await prisma.Characters.delete({
         where: {

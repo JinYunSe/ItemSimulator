@@ -177,8 +177,17 @@ ItemRouter.get("/item/:itemCode", async (req, res, next) => {
       return res
         .status(404)
         .json({ message: "찾고자 하는 아이템이 없습니다." });
-
-    return res.status(200).json({ data: item });
+    // 원하는 형식으로 데이터 재구성
+    const responseData = {
+      item_code: item.itemCode,
+      item_name: item.itemName,
+      item_stat: {
+        health: item.addHealth,
+        power: item.addPower,
+      },
+      item_price: item.price,
+    };
+    return res.status(200).json({ data: responseData });
   } catch (error) {
     next(error);
   }

@@ -30,7 +30,7 @@ UsersRouter.post("/sign-up", async (req, res, next) => {
       },
     });
     if (isExist)
-      return res.status(409).json({ message: "이미 존재하는 이메일 입니다." });
+      return res.status(409).json({ message: "이미 존재하는 아이디 입니다." });
     if (password !== passwordCheck)
       return res.status(400).json({ massage: "비밀번호가 일치하지 않습니다." });
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -81,7 +81,7 @@ UsersRouter.post("/sign-in", async (req, res, next) => {
     return res.status(404).json({ message: "비밀번호를 일치하지 않습니다." });
 
   const token = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY);
-  res.cookie("authorization", `Bearer ${token}`);
+  res.header(`${process.env.TOKEN_KEY}`, `${process.env.TOKEN_TYPE} ${token}`);
   return res.status(200).json({ message: "로그인 성공" });
 });
 
@@ -100,7 +100,7 @@ UsersRouter.get("/singAll", async (req, res, next) => {
       createdAt: true,
     },
   });
-  return res.status(200).json({ massage: userList });
+  return res.status(200).json({ data: userList });
 });
 
 export default UsersRouter;
