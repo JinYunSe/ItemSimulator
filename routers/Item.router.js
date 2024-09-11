@@ -1,6 +1,6 @@
-import express from 'express';
-import prisma from '../src/utils/prisma/index.js';
-import joi from 'joi';
+import express from "express";
+import prisma from "../src/utils/prisma/index.js";
+import joi from "joi";
 
 const ItemRouter = express.Router();
 
@@ -27,7 +27,7 @@ const checkItemCode = joi.object({
 });
 
 // 아이템 생성 API
-ItemRouter.post('/item', async (req, res, next) => {
+ItemRouter.post("/item", async (req, res, next) => {
   try {
     const { item_code, item_name, item_stat = {}, item_price } = req.body;
 
@@ -43,7 +43,7 @@ ItemRouter.post('/item', async (req, res, next) => {
     if (isExist)
       return res
         .status(401)
-        .json({ message: '이미 존재하는 아이템 코드번호입니다.' });
+        .json({ message: "이미 존재하는 아이템 코드번호입니다." });
 
     // 입력 데이터 검증
     const itemValidation = await checkItemInput.validateAsync({
@@ -81,7 +81,7 @@ ItemRouter.post('/item', async (req, res, next) => {
 });
 
 // 아이템 수정 API
-ItemRouter.patch('/item/:itemCode', async (req, res, next) => {
+ItemRouter.patch("/item/:itemCode", async (req, res, next) => {
   try {
     // itemCode 검증
     const { itemCode } = await checkItemCode.validateAsync({
@@ -97,19 +97,19 @@ ItemRouter.patch('/item/:itemCode', async (req, res, next) => {
     if (!isExist)
       return res
         .status(404)
-        .json({ message: '변경할 아이템이 존재하지 않습니다.' });
+        .json({ message: "변경할 아이템이 존재하지 않습니다." });
 
-    const { itemName, itemStat = {} } = req.body;
+    const { item_name, item_stat = {} } = req.body;
 
     // 입력 데이터 검증
     const itemValidation = await checkItemInput.validateAsync({
-      itemName: itemName.itemName,
-      addHealth: itemStat.health || 0,
-      addPower: itemStat.power || 0,
+      itemName: item_name || isExist.itemName,
+      addHealth: item_stat.health || 0,
+      addPower: item_stat.power || 0,
     });
 
     // 아이템 업데이트
-    await prisma.Items.update({
+    const updateItem = await prisma.Items.update({
       where: {
         itemCode,
       },
@@ -119,13 +119,14 @@ ItemRouter.patch('/item/:itemCode', async (req, res, next) => {
     });
 
     const response = {
-      item_code: itemCode,
-      item_name: itemName || isExist.itemName,
+      item_code: updateItem.itemCode,
+      item_name: updateItem.itemName || isExist.itemName,
       item_stat: {},
     };
-    if (itemStat.health !== undefined)
-      response.item_stat.health = itemStat.health;
-    if (itemStat.power !== undefined) response.item_stat.power = itemStat.power;
+    if (item_stat.health !== undefined)
+      response.item_stat.health = updateItem.addHealth;
+    if (item_stat.power !== undefined)
+      response.item_stat.power = updateItem.addPower;
 
     return res.status(200).json({ data: response });
   } catch (error) {
@@ -135,7 +136,7 @@ ItemRouter.patch('/item/:itemCode', async (req, res, next) => {
 
 // 전체 아이템 조회 API
 // DB로 확인하기 위해 사용
-ItemRouter.get('/item', async (req, res, next) => {
+ItemRouter.get("/item", async (req, res, next) => {
   let itemList = await prisma.Items.findMany({
     select: {
       itemId: true,
@@ -148,7 +149,7 @@ ItemRouter.get('/item', async (req, res, next) => {
   });
 
   // addHealth와 addPower를 item_stat으로 묶어준다.
-  itemList = itemList.map((item) => ({
+  itemList = itemList.map(item => ({
     item_id: item.itemId,
     item_code: item.itemCode,
     item_name: item.itemName,
@@ -163,7 +164,7 @@ ItemRouter.get('/item', async (req, res, next) => {
 
 // 특정 아이템 조회 API
 // DB로 확인하기 위해 사용
-ItemRouter.get('/item/:itemCode', async (req, res, next) => {
+ItemRouter.get("/item/:itemCode", async (req, res, next) => {
   try {
     const validation = await checkItemCode.validateAsync(req.params);
     const { itemCode } = validation;
@@ -175,7 +176,7 @@ ItemRouter.get('/item/:itemCode', async (req, res, next) => {
     if (!item)
       return res
         .status(404)
-        .json({ message: '찾고자 하는 아이템이 없습니다.' });
+        .json({ message: "찾고자 하는 아이템이 없습니다." });
 
     return res.status(200).json({ data: item });
   } catch (error) {
