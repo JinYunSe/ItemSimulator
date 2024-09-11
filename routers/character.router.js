@@ -2,6 +2,7 @@ import express from "express";
 import prisma from "../src/utils/prisma/index.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 import joi from "joi";
+import { Prisma } from "@prisma/client";
 
 const CharacterRouter = express.Router();
 
@@ -33,16 +34,29 @@ CharacterRouter.post("/characters", authMiddleware, async (req, res, next) => {
     if (isExist)
       return res.status(409).json({ message: "이미 존재하는 닉네임 입니다." });
 
-    const character = await prisma.Characters.create({
-      data: {
-        userId,
-        nickname,
+    const [character, inventory] = await prisma.$transaction(
+      async tx => {
+        const character = await tx.Characters.create({
+          data: {
+            userId,
+            nickname,
+          },
+        });
+
+        const inventory = await tx.Inventory.create({
+          data: {
+            characterId: +character.characterId,
+          },
+        });
+        return [character, inventory];
       },
-    });
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+      }
+    );
 
     const sendData = {
       message: `새로운 캐릭터 ${character.nickname}를 생성하셨습니다!`,
-      data: { character_Id: character.characterId },
     };
     return res.status(201).json({ data: sendData });
   } catch (error) {
@@ -52,27 +66,28 @@ CharacterRouter.post("/characters", authMiddleware, async (req, res, next) => {
 
 // 케릭터 전체 조회 API
 // DB 확인을 위해 구현
-CharacterRouter.get(
-  "/charactersALL",
-  authMiddleware,
-  async (req, res, next) => {
-    const characterList = await prisma.Characters.findMany({
-      select: {
-        characterId: true,
-        nickname: true,
-        userId: true,
-        health: true,
-        power: true,
-        money: true,
+CharacterRouter.get("/characters", authMiddleware, async (req, res, next) => {
+  const characterList = await prisma.Characters.findMany({
+    select: {
+      characterId: true,
+      nickname: true,
+      userId: true,
+      health: true,
+      power: true,
+      money: true,
+      inventory: {
+        select: {
+          inventoryId: true,
+        },
       },
-      orderBy: {
-        characterId: "asc",
-      },
-    });
-    console.log(characterList);
-    return res.status(200).json({ data: characterList });
-  }
-);
+    },
+    orderBy: {
+      characterId: "asc",
+    },
+  });
+  console.log(characterList);
+  return res.status(200).json({ data: characterList });
+});
 
 //특정 케릭터 조회 API
 CharacterRouter.get(
@@ -94,6 +109,11 @@ CharacterRouter.get(
           power: true,
           money: true,
           userId: true,
+          inventory: {
+            select: {
+              inventoryId: true,
+            },
+          },
         },
       });
 
@@ -102,8 +122,10 @@ CharacterRouter.get(
           .status(404)
           .json({ message: "해당 케릭터가 존재하지 않습니다." });
 
-      if (character.userId !== userId) delete character.money; // 본인 케릭 아니면 삭제
-      delete character.userId; // 개인정보? 생각해서 그냥 삭제 했습니다.
+      if (character.userId !== userId) {
+        delete character.money; // 본인 케릭 아니면 삭제
+        delete character.userId; // 개인정보? 생각해서 그냥 삭제 했습니다.
+      }
       return res.status(200).json({ data: character });
     } catch (error) {
       next(error);

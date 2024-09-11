@@ -45,7 +45,16 @@ model Characters{
 
   // Users 테이블에서 외래키 가져오기
   user Users @relation(fields: [userId], references: [userId], onDelete : Cascade)
+  inventory Inventory?
   @@map("Characters")
+}
+
+model Inventory {
+  inventoryId Int        @id @default(autoincrement())
+  characterId Int        @unique
+
+  character   Characters @relation(fields: [characterId], references: [characterId], onDelete: Cascade)
+  @@map("Inventory")
 }
 
 model Items{
@@ -55,6 +64,5 @@ model Items{
     addHealth   Int                               @map("addHealth")
     addPower    Int                               @map("addPower")
     price       Int                               @map("price")
-
     @@map("Items")
 }

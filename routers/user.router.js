@@ -90,7 +90,7 @@ UsersRouter.post("/sign-in", async (req, res, next) => {
 
 //회원 모두 조회 API
 //DB 동작 유무 확인을 위해 구현
-UsersRouter.get("/singAll", async (req, res, next) => {
+UsersRouter.get("/sing", async (req, res, next) => {
   const userList = await prisma.Users.findMany({
     select: {
       userId: true,
