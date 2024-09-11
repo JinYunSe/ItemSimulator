@@ -88,22 +88,22 @@ UsersRouter.post("/sign-in", async (req, res, next) => {
   return res.status(200).json({ message: "로그인 성공" });
 });
 
-// 회원 모두 조회 API
-// DB 동작 유무 확인을 위해 구현
-// UsersRouter.get("/singAll", async (req, res, next) => {
-//   const userList = await prisma.Users.findMany({
-//     select: {
-//       userId: true,
-//       password: true,
-//       userInfos: {
-//         select: {
-//           name: true,
-//         },
-//       },
-//       createdAt: true,
-//     },
-//   });
-//   return res.status(200).json({ data: userList });
-// });
+//회원 모두 조회 API
+//DB 동작 유무 확인을 위해 구현
+UsersRouter.get("/singAll", async (req, res, next) => {
+  const userList = await prisma.Users.findMany({
+    select: {
+      userId: true,
+      password: true,
+      userInfos: {
+        select: {
+          name: true,
+        },
+      },
+      createdAt: true,
+    },
+  });
+  return res.status(200).json({ data: userList });
+});
 
-// export default UsersRouter;
+export default UsersRouter;

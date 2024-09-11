@@ -59,7 +59,7 @@ ItemRouter.post("/item", async (req, res, next) => {
       data: {
         itemCode,
         ...itemValidation,
-        price: price,
+        price,
       },
     });
 
