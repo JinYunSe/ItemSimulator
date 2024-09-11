@@ -16,7 +16,12 @@ const createSingUpSchema = joi.object({
     .required(),
   password: joi.string().min(6).max(191).required(),
   passwordCheck: joi.string().min(6).max(191).required(),
-  name: joi.string().required(),
+  name: joi
+    .string()
+    .min(1)
+    .max(191)
+    .pattern(/^[a-zA-Z]+$/)
+    .required(),
 });
 
 // 회원가입 API
