@@ -35,6 +35,8 @@ UsersRouter.post("/sign-up", async (req, res, next) => {
       return res.status(400).json({ massage: "비밀번호가 일치하지 않습니다." });
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 트랜잭션으로 아래의 과정 실행 중 오류 발생이 있으면 ROLLBACK
+    // 정상 작동을 완료했다면 COMMIT
     const [user, userInfo] = await prisma.$transaction(
       async tx => {
         // User 테이블에 값 넣기
@@ -55,6 +57,7 @@ UsersRouter.post("/sign-up", async (req, res, next) => {
         });
         return [user, userInfo];
       },
+      // 격리성 레벨 설정
       {
         isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
       }
@@ -87,20 +90,20 @@ UsersRouter.post("/sign-in", async (req, res, next) => {
 
 // 회원 모두 조회 API
 // DB 동작 유무 확인을 위해 구현
-UsersRouter.get("/singAll", async (req, res, next) => {
-  const userList = await prisma.Users.findMany({
-    select: {
-      userId: true,
-      password: true,
-      userInfos: {
-        select: {
-          name: true,
-        },
-      },
-      createdAt: true,
-    },
-  });
-  return res.status(200).json({ data: userList });
-});
+// UsersRouter.get("/singAll", async (req, res, next) => {
+//   const userList = await prisma.Users.findMany({
+//     select: {
+//       userId: true,
+//       password: true,
+//       userInfos: {
+//         select: {
+//           name: true,
+//         },
+//       },
+//       createdAt: true,
+//     },
+//   });
+//   return res.status(200).json({ data: userList });
+// });
 
-export default UsersRouter;
+// export default UsersRouter;

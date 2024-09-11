@@ -118,6 +118,7 @@ ItemRouter.patch("/item/:itemCode", async (req, res, next) => {
       },
     });
 
+    //Client에게 제공할 JSON 형태 정보 제작
     const response = {
       item_code: updateItem.itemCode,
       item_name: updateItem.itemName || isExist.itemName,
@@ -177,7 +178,8 @@ ItemRouter.get("/item/:itemCode", async (req, res, next) => {
       return res
         .status(404)
         .json({ message: "찾고자 하는 아이템이 없습니다." });
-    // 원하는 형식으로 데이터 재구성
+
+    //Client에게 제공할 JSON 형태 정보 제작
     const responseData = {
       item_code: item.itemCode,
       item_name: item.itemName,
