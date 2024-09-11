@@ -169,7 +169,7 @@ ItemRouter.get("/item/:itemCode", async (req, res, next) => {
   try {
     const validation = await checkItemCode.validateAsync(req.params);
     const { itemCode } = validation;
-    const item = await prisma.Items.findFirst({
+    let item = await prisma.Items.findFirst({
       where: {
         itemCode,
       },
@@ -180,7 +180,7 @@ ItemRouter.get("/item/:itemCode", async (req, res, next) => {
         .json({ message: "찾고자 하는 아이템이 없습니다." });
 
     //Client에게 제공할 JSON 형태 정보 제작
-    const responseData = {
+    item = {
       item_code: item.itemCode,
       item_name: item.itemName,
       item_stat: {
@@ -189,7 +189,7 @@ ItemRouter.get("/item/:itemCode", async (req, res, next) => {
       },
       item_price: item.price,
     };
-    return res.status(200).json({ data: responseData });
+    return res.status(200).json({ data: item });
   } catch (error) {
     next(error);
   }
