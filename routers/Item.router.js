@@ -6,24 +6,16 @@ const ItemRouter = express.Router();
 
 const checkItemInput = joi.object({
   itemName: joi.string().min(1).max(191),
-  addHealth: joi
-    .number()
-    .integer()
-    .min(Number.MIN_SAFE_INTEGER)
-    .max(Number.MAX_SAFE_INTEGER),
-  addPower: joi
-    .number()
-    .integer()
-    .min(Number.MIN_SAFE_INTEGER)
-    .max(Number.MAX_SAFE_INTEGER),
+  addHealth: joi.number().integer().min(-2147483647).max(2147483647),
+  addPower: joi.number().integer().min(-2147483647).max(2147483647),
 });
 
 const checkPrice = joi.object({
-  price: joi.number().integer().min(0).max(Number.MAX_SAFE_INTEGER).required(),
+  price: joi.number().integer().min(0).max(2147483647).required(),
 });
 
 const checkItemCode = joi.object({
-  itemCode: joi.number().integer().min(1).max(Number.MAX_VALUE).required(),
+  itemCode: joi.number().integer().min(1).max(2147483647).required(),
 });
 
 // 아이템 생성 API
@@ -100,7 +92,7 @@ ItemRouter.patch("/item/:itemCode", async (req, res, next) => {
         .json({ message: "변경할 아이템이 존재하지 않습니다." });
 
     const { item_name, item_stat = {} } = req.body;
-
+    //            item_stat가 없으면 item_stat 객체 변수 선언
     // 입력 데이터 검증
     const itemValidation = await checkItemInput.validateAsync({
       itemName: item_name || isExist.itemName,

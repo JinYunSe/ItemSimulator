@@ -11,12 +11,7 @@ const checkCharacterNickName = joi.object({
 });
 
 const checkCharacterId = joi.object({
-  characterId: joi
-    .number()
-    .integer()
-    .min(1)
-    .max(Number.MAX_SAFE_INTEGER)
-    .required(),
+  characterId: joi.number().integer().min(1).max(2147483647).required(),
 });
 
 // 케릭터 생성 API
@@ -55,10 +50,9 @@ CharacterRouter.post("/characters", authMiddleware, async (req, res, next) => {
       }
     );
 
-    const sendData = {
+    return res.status(201).json({
       message: `새로운 캐릭터 ${character.nickname}를 생성하셨습니다!`,
-    };
-    return res.status(201).json({ data: sendData });
+    });
   } catch (error) {
     next(error);
   }
@@ -75,11 +69,6 @@ CharacterRouter.get("/characters", authMiddleware, async (req, res, next) => {
       health: true,
       power: true,
       money: true,
-      inventory: {
-        select: {
-          inventoryId: true,
-        },
-      },
     },
     orderBy: {
       characterId: "asc",
@@ -109,11 +98,6 @@ CharacterRouter.get(
           power: true,
           money: true,
           userId: true,
-          inventory: {
-            select: {
-              inventoryId: true,
-            },
-          },
         },
       });
 

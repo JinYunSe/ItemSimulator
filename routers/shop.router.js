@@ -6,9 +6,7 @@ import joi from "joi";
 const shopRouter = exprss.Router();
 
 shopRouter.post(
-  "/characters/characterId/shop",
-  authMiddleware,
-  async (req, res, next) => "/characters/characterId/shop",
+  "/characters/:characterId/shop",
   authMiddleware,
   async (req, res, next) => {
     //   const { characterId } = req.params.character;
@@ -25,6 +23,7 @@ shopRouter.post(
     //   });
     //   if (!character)
     //     return res.status(404).json({ massage: "케릭터가 존재하지 않습니다." });
+
     //   const buyWantItems = req.body;
     //   const totalPrice = 0;
     //   buyWantItems.forEach(async item => {
@@ -42,7 +41,7 @@ shopRouter.post(
     //       return res
     //         .status(404)
     //         .json({ massage: "존재하지 않는 물품이 있습니다." });
-    //     totalPrice += temp.price;
+    //     totalPrice += temp.price * item.count;
     //   });
     //   if (character.money < totalPrice)
     //     return res.status(401).json({ massage: "보유한 금액이 부족합니다" });
