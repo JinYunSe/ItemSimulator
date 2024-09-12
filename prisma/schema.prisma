@@ -66,3 +66,7 @@ model Items{
     price       Int                               @map("price")
     @@map("Items")
 }
+
+//Inventory와 Item을 1 : N의 연관관계로
+//만들었는데 현재 도전 과제를 상점을
+//완성하지 못 한 관계로 연관관계를 제거한 상태입니다...
