@@ -79,9 +79,9 @@ UsersRouter.post("/sign-in", async (req, res, next) => {
   });
 
   if (!user)
-    return res.status(404).json({ message: "아이디가 존재하지 않습니다." });
+    return res.status(401).json({ message: "아이디가 존재하지 않습니다." });
   else if (!(await bcrypt.compare(password, user.password)))
-    return res.status(404).json({ message: "비밀번호를 일치하지 않습니다." });
+    return res.status(401).json({ message: "비밀번호를 일치하지 않습니다." });
 
   const token = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY);
   res.header(`${process.env.TOKEN_KEY}`, `${process.env.TOKEN_TYPE} ${token}`);
