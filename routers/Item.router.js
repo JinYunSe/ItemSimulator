@@ -112,6 +112,7 @@ ItemRouter.patch("/item/:itemCode", async (req, res, next) => {
 
     //Client에게 제공할 JSON 형태 정보 제작
     const response = {
+      item_code: updateItem.itemCode,
       item_name: updateItem.itemName || isExist.itemName,
       item_stat: {},
     };
