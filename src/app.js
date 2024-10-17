@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
 import UsersRouter from "../routers/user.router.js";
-import CharacterRouter from "../routers/character.router.js";
+import characterRouter from "../routers/character.router.js";
 import ItemRouter from "../routers/Item.router.js";
 
 import LogMiddleware from "../middlewares/log.middleware.js";
